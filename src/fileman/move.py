@@ -1,15 +1,16 @@
-from typing import Union
+from typing import Union, Tuple
 
 from pathlib import Path
 import shutil
 
 strPath = Union[str, Path]
+returnStrPath = Union[str, Path, None]
 
 
-def copy(
+def __ready_move(
     src: strPath, dist: strPath, *, addDirName=False, withDir=False, outIsDir=False
-) -> bool:
-    """ファイルをコピー
+) -> Tuple[bool, returnStrPath, returnStrPath]:
+    """ファイルの移動準備
 
     保存先のディレクトリがない場合は作成
     保存先がディレクトリの場合は、その配下にコピー
@@ -29,7 +30,7 @@ def copy(
 
     if not _src.is_file():
         print(f"{_src.resolve()} is not file")
-        return False
+        return False, None, None
 
     # srcのディレクトリを付与(強制的にdistをディレクトリ扱いにする)
     if withDir:
@@ -46,8 +47,25 @@ def copy(
     if not _dist.parent.is_dir():
         if _dist.parent.exists():
             print(f"{_dist.parent.resolve()} is not directory")
-            return False
+            return False, None, None
         _dist.parent.mkdir(parents=True, exist_ok=True)
 
-    shutil.copy(_src, _dist)
+    return True, _src, _dist
+
+
+def copy(*args, **kwargs) -> bool:
+    ok, src, dist = __ready_move(*args, **kwargs)
+    if not ok or src is None or dist is None:
+        return False
+
+    shutil.copy(src, dist)
+    return True
+
+
+def move(*args, **kwargs) -> bool:
+    ok, src, dist = __ready_move(*args, **kwargs)
+    if not ok or src is None or dist is None:
+        return False
+
+    shutil.move(str(src), dist)
     return True
