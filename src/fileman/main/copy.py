@@ -20,8 +20,8 @@ def create_argperser() -> ArgumentParser:
 def copy():
     """ファイルのコピー"""
     # helpのチェック(requiredが引っかかるので、最小のperserでチェック)
-    base_parse = create_check_help_argperser().parse_args()
-    if base_parse.help:
+    args = create_check_help_argperser().parse_args()
+    if args.help:
         create_argperser().print_help()
         return
 

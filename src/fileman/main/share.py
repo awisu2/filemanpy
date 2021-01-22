@@ -21,22 +21,12 @@ def create_base_argperser() -> ArgumentParser:
         default="",
         nargs="?",
     )
-
     return argparser
 
 
 def create_check_help_argperser() -> ArgumentParser:
     argparser = create_base_argperser()
-    argparser.add_argument(
-        "help",
-        type=str,
-        choices=(
-            "",
-            "help",
-        ),
-        default="",
-        nargs="?",
-    )
+
     argparser.add_argument(
         "other",
         type=str,
