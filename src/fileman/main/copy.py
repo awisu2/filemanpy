@@ -14,6 +14,8 @@ def create_argperser() -> ArgumentParser:
         "--addDirName", action="store_true", help="コピー時のファイル名に、ディレクトリ名を追加"
     )
     argperser.add_argument("--withDir", action="store_true", help="コピー元のディレクトリも同時に移動")
+    argperser.add_argument("--outIsDir", action="store_true", help="outをディレクトリとする")
+
     return argperser
 
 
@@ -27,6 +29,11 @@ def copy():
 
     # 処理
     args = create_argperser().parse_args()
-    out = args.out
     for input in args.input:
-        _copy(input, out, addDirName=args.addDirName, withDir=args.withDir)
+        _copy(
+            input,
+            args.out,
+            addDirName=args.addDirName,
+            withDir=args.withDir,
+            outIsDir=args.outIsDir,
+        )

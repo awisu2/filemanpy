@@ -20,6 +20,7 @@ class TestCopy(unittest.TestCase):
         ]
         self.out_dir = self.assets_dir / "out"
         self.out = self.out_dir / "out.txt"
+        self.out2 = self.out_dir / "out2.txt"
 
         self.input = self.inputs[0]
         for input in self.inputs:
@@ -105,4 +106,14 @@ class TestCopy(unittest.TestCase):
                 / self.input.parent.name
                 / (self.input.parent.name + "_" + self.input.name)
             )
+            self.assertTrue(_out.is_file())
+
+    def test_copy_outisdir(self):
+        """outIsDir"""
+
+        # 出力先を強制ディレクトリ扱い
+        argv = self.argv1 + ["-o", str(self.out2.resolve()), "--outIsDir"]
+        with patch.object(sys, "argv", argv):
+            copy.copy()
+            _out = self.out2 / self.input.name
             self.assertTrue(_out.is_file())
