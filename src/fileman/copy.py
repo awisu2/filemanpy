@@ -6,7 +6,7 @@ import shutil
 strPath = Union[str, Path]
 
 
-def copy(src: strPath, dist: strPath, *, addDirName=False):
+def copy(src: strPath, dist: strPath, *, addDirName=False, withDir=False):
     """ファイルをコピー
 
     保存先のディレクトリがない場合は作成
@@ -23,9 +23,14 @@ def copy(src: strPath, dist: strPath, *, addDirName=False):
     if not _src.is_file():
         return False
 
-    if _dist.is_dir():
+    # srcのディレクトリを付与(強制的にdistをディレクトリ扱いにする)
+    if withDir:
+        _dist = _dist / _src.parent.name / _src.name
+
+    elif _dist.is_dir():
         _dist = _dist / _src.name
 
+    # ファイル名にsrcのディレクトリ名を付与
     if addDirName:
         _dist = _dist.parent / (_src.parent.name + "_" + _dist.name)
 

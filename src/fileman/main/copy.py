@@ -7,31 +7,20 @@ from fileman.copy import copy as _copy
 def create_argperser() -> ArgumentParser:
     argperser = create_base_argperser()
     argperser.add_argument(
-        "-i",
-        "--input",
-        type=str,
-        required=True,
-        help="画像の幅",
+        "-i", "--input", type=str, required=True, help="画像の幅", nargs="+"
     )
+    argperser.add_argument("-o", "--out", type=str, required=True, help="画像の高さ")
     argperser.add_argument(
-        "-o",
-        "--out",
-        type=str,
-        required=True,
-        help="画像の高さ",
+        "--addDirName", action="store_true", help="コピー時のファイル名に、ディレクトリ名を追加"
     )
-    argperser.add_argument(
-        "--addDirName",
-        action="store_true",
-        help="コピー時に、ディレクトリ名を追加",
-    )
+    argperser.add_argument("--withDir", action="store_true", help="コピー元のディレクトリも同時に移動")
     return argperser
 
 
 def copy():
     """ファイルのコピー"""
     args = create_argperser().parse_args()
-    input = args.input
     out = args.out
 
-    _copy(input, out, addDirName=args.addDirName)
+    for input in args.input:
+        _copy(input, out, addDirName=args.addDirName, withDir=args.withDir)

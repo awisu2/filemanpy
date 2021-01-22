@@ -53,3 +53,28 @@ class TestCopy(unittest.TestCase):
             copy.copy()
             _out = self.out_dir / (self.input.parent.name + "_" + self.input.name)
             self.assertTrue(_out.is_file())
+
+    def test_copy_withdir(self):
+        """addDirName"""
+        # コピー先がディレクトリ
+        argv = self.arr + ["-o", str(self.out_dir.resolve()), "--withDir"]
+        with patch.object(sys, "argv", argv):
+            copy.copy()
+            _out = self.out_dir / self.input.parent.name / self.input.name
+            self.assertTrue(_out.is_file())
+
+        # addDirNameも一緒
+        argv = self.arr + [
+            "-o",
+            str(self.out_dir.resolve()),
+            "--withDir",
+            "--addDirName",
+        ]
+        with patch.object(sys, "argv", argv):
+            copy.copy()
+            _out = (
+                self.out_dir
+                / self.input.parent.name
+                / (self.input.parent.name + "_" + self.input.name)
+            )
+            self.assertTrue(_out.is_file())
