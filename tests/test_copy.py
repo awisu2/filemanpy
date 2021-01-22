@@ -4,7 +4,7 @@ from unittest.mock import patch
 import sys
 from pathlib import Path
 
-from src.fileman.main import copy
+from src.fileman.main import move
 
 
 class TestCopy(unittest.TestCase):
@@ -20,6 +20,7 @@ class TestCopy(unittest.TestCase):
         ]
         self.out_dir = self.assets_dir / "out"
         self.out = self.out_dir / "out.txt"
+        self.out2 = self.out_dir / "out2.txt"
 
         self.input = self.inputs[0]
         for input in self.inputs:
@@ -41,13 +42,13 @@ class TestCopy(unittest.TestCase):
         # ファイルコピー
         argv = self.argv1 + ["-o", str(self.out.resolve())]
         with patch.object(sys, "argv", argv):
-            copy.copy()
+            move.copy()
             self.assertTrue(self.out.is_file())
 
         # コピー先がディレクトリ
         argv = self.argv1 + ["-o", str(self.out_dir.resolve())]
         with patch.object(sys, "argv", argv):
-            copy.copy()
+            move.copy()
             self.assertTrue((self.out_dir / self.input.name).is_file())
 
     def test_copy_multi(self):
@@ -55,14 +56,14 @@ class TestCopy(unittest.TestCase):
         # ファイルコピー
         argv = self.argv2 + ["-o", str(self.out.resolve())]
         with patch.object(sys, "argv", argv):
-            copy.copy()
+            move.copy()
             # 同じファイル名でコピーされるので１ファイルだけ
             self.assertTrue(self.out.is_file())
 
         # コピー先がディレクトリ
         argv = self.argv2 + ["-o", str(self.out_dir.resolve())]
         with patch.object(sys, "argv", argv):
-            copy.copy()
+            move.copy()
             self.assertTrue((self.out_dir / self.inputs[0].name).is_file())
             self.assertTrue((self.out_dir / self.inputs[1].name).is_file())
 
@@ -71,14 +72,14 @@ class TestCopy(unittest.TestCase):
         # コピー先がディレクトリ
         argv = self.argv1 + ["-o", str(self.out.resolve()), "--addDirName"]
         with patch.object(sys, "argv", argv):
-            copy.copy()
+            move.copy()
             _out = self.out_dir / (self.input.parent.name + "_" + self.out.name)
             self.assertTrue(_out.is_file())
 
         # コピー先がディレクトリ
         argv = self.argv1 + ["-o", str(self.out_dir.resolve()), "--addDirName"]
         with patch.object(sys, "argv", argv):
-            copy.copy()
+            move.copy()
             _out = self.out_dir / (self.input.parent.name + "_" + self.input.name)
             self.assertTrue(_out.is_file())
 
@@ -87,7 +88,7 @@ class TestCopy(unittest.TestCase):
         # コピー先がディレクトリ
         argv = self.argv1 + ["-o", str(self.out_dir.resolve()), "--withDir"]
         with patch.object(sys, "argv", argv):
-            copy.copy()
+            move.copy()
             _out = self.out_dir / self.input.parent.name / self.input.name
             self.assertTrue(_out.is_file())
 
@@ -99,10 +100,20 @@ class TestCopy(unittest.TestCase):
             "--addDirName",
         ]
         with patch.object(sys, "argv", argv):
-            copy.copy()
+            move.copy()
             _out = (
                 self.out_dir
                 / self.input.parent.name
                 / (self.input.parent.name + "_" + self.input.name)
             )
+            self.assertTrue(_out.is_file())
+
+    def test_copy_outisdir(self):
+        """outIsDir"""
+
+        # 出力先を強制ディレクトリ扱い
+        argv = self.argv1 + ["-o", str(self.out2.resolve()), "--outIsDir"]
+        with patch.object(sys, "argv", argv):
+            move.copy()
+            _out = self.out2 / self.input.name
             self.assertTrue(_out.is_file())

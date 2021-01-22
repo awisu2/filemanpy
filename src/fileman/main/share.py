@@ -5,6 +5,7 @@ from imagenate.libs.enum import CustomEnum
 
 class Command(CustomEnum):
     COPY = "copy"
+    MOVE = "move"
 
 
 def create_base_argperser() -> ArgumentParser:
