@@ -15,15 +15,9 @@ class TestCopy(unittest.TestCase):
 
     def test_hello(self):
         try:
-            argvs = (
-                # ["copy", "copy"],
-                # ["copy", "-i", "foo", "-o", "bar", "copy"],
-                ["_module", "copy", "-i", "foo", "-o", "bar"],
-            )
+            argvs = (["_module", "copy", "-i", "foo", "-o", "bar"],)
             for argv in argvs:
                 with patch.object(sys, "argv", argv):
                     copy.copy()
         except Exception as e:
             print(e)
-
-        # self.assertEqual("hello", "hello")
