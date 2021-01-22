@@ -1,6 +1,6 @@
 from argparse import ArgumentParser
 
-from fileman.main.share import create_base_argperser
+from fileman.main.share import create_base_argperser, create_check_help_argperser
 from fileman.copy import copy as _copy
 
 
@@ -19,8 +19,14 @@ def create_argperser() -> ArgumentParser:
 
 def copy():
     """ファイルのコピー"""
+    # helpのチェック(requiredが引っかかるので、最小のperserでチェック)
+    args = create_check_help_argperser().parse_args()
+    if args.help:
+        create_argperser().print_help()
+        return
+
+    # 処理
     args = create_argperser().parse_args()
     out = args.out
-
     for input in args.input:
         _copy(input, out, addDirName=args.addDirName, withDir=args.withDir)
