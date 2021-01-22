@@ -20,15 +20,18 @@ def create_argperser() -> ArgumentParser:
         required=True,
         help="画像の高さ",
     )
+    argperser.add_argument(
+        "--addDirName",
+        action="store_true",
+        help="コピー時に、ディレクトリ名を追加",
+    )
     return argperser
 
 
 def copy():
     """ファイルのコピー"""
-
-    # パラメータチェック
     args = create_argperser().parse_args()
     input = args.input
     out = args.out
-    print(input, out)
-    # _copy(args["in"], args.out)
+
+    _copy(input, out, addDirName=args.addDirName)

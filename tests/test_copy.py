@@ -1,23 +1,55 @@
+import shutil
 import unittest
 from unittest.mock import patch
-from src.fileman.main import copy
 import sys
+from pathlib import Path
+
+from src.fileman.main import copy
 
 
 class TestCopy(unittest.TestCase):
+    assets_dir: Path
+
     def setUp(self):
-        # self.value = range(3)
-        pass
+        self.assets_dir = Path("tests/.assets")
+        self.assets_dir.mkdir(parents=True, exist_ok=True)
+
+        self.input = self.assets_dir / "input.txt"
+        self.out_dir = self.assets_dir / "out"
+        self.out = self.out_dir / "out.txt"
+
+        self.input.touch(exist_ok=True)
+        self.arr = ["_", "copy", "-i", str(self.input.resolve())]
 
     def tearDown(self):
-        # self.value = None
-        pass
+        shutil.rmtree(self.assets_dir)
 
-    def test_hello(self):
-        try:
-            argvs = (["_module", "copy", "-i", "foo", "-o", "bar"],)
-            for argv in argvs:
-                with patch.object(sys, "argv", argv):
-                    copy.copy()
-        except Exception as e:
-            print(e)
+    def test_copy(self):
+        """copy"""
+        # ファイルコピー
+        argv = self.arr + ["-o", str(self.out.resolve())]
+        with patch.object(sys, "argv", argv):
+            copy.copy()
+            self.assertTrue(self.out.is_file())
+
+        # コピー先がディレクトリ
+        argv = self.arr + ["-o", str(self.out_dir.resolve())]
+        with patch.object(sys, "argv", argv):
+            copy.copy()
+            self.assertTrue((self.out_dir / self.input.name).is_file())
+
+    def test_copy_adddirname(self):
+        """addDirName"""
+        # コピー先がディレクトリ
+        argv = self.arr + ["-o", str(self.out.resolve()), "--addDirName"]
+        with patch.object(sys, "argv", argv):
+            copy.copy()
+            _out = self.out_dir / (self.input.parent.name + "_" + self.out.name)
+            self.assertTrue(_out.is_file())
+
+        # コピー先がディレクトリ
+        argv = self.arr + ["-o", str(self.out_dir.resolve()), "--addDirName"]
+        with patch.object(sys, "argv", argv):
+            copy.copy()
+            _out = self.out_dir / (self.input.parent.name + "_" + self.input.name)
+            self.assertTrue(_out.is_file())
