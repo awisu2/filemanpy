@@ -4,7 +4,7 @@ from unittest.mock import patch
 import sys
 from pathlib import Path
 
-from src.fileman.main import move
+from fileman.main import move
 
 
 class TestCopy(unittest.TestCase):

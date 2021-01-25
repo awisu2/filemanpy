@@ -5,6 +5,15 @@ simple image manager for my study.
 - cmmandable
 - libraryable
 
+## develop setup
+
+```bash
+pip install -r requirements.txt
+
+# testsのパスが解決するため
+pip install -e .
+```
+
 ## install
 
 ```bash
