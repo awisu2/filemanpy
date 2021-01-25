@@ -3,6 +3,7 @@ import unittest
 from unittest.mock import patch
 import sys
 from pathlib import Path
+import os
 
 from fileman.main import move
 
@@ -73,7 +74,7 @@ class TestCopy(unittest.TestCase):
         argv = self.argv1 + ["-o", str(self.out.resolve()), "--addDirName"]
         with patch.object(sys, "argv", argv):
             move.copy()
-            _out = self.out_dir / (self.input.parent.name + "_" + self.out.name)
+            _out = self.out / (self.input.parent.name + "_" + self.input.name)
             self.assertTrue(_out.is_file())
 
         # コピー先がディレクトリ
@@ -117,3 +118,77 @@ class TestCopy(unittest.TestCase):
             move.copy()
             _out = self.out2 / self.input.name
             self.assertTrue(_out.is_file())
+
+    def test_copy_dir(self):
+        """copy"""
+        # ファイルコピー
+
+        input_dir = self.assets_dir / "input"
+        out_dir = self.assets_dir / "out"
+
+        inputs = [
+            input_dir / "i1.txt",
+            input_dir / "i2.txt",
+            input_dir / "sub" / "i3.txt",
+        ]
+        outpust = [
+            out_dir / "input" / "i1.txt",
+            out_dir / "input" / "i2.txt",
+        ]
+        outpust2 = outpust + [
+            out_dir / "input" / "sub" / "i3.txt",
+        ]
+
+        for input in inputs:
+            os.makedirs(input.parent, exist_ok=True)
+            input.touch(exist_ok=True)
+
+        argv = (
+            ["_", "copy"]
+            + ["-i", str(input_dir.resolve())]
+            + ["-o", str(out_dir.resolve())]
+            + ["--withDir"]
+        )
+        with patch.object(sys, "argv", argv):
+            move.copy()
+            for output in outpust:
+                self.assertTrue(output.is_file())
+
+        with patch.object(sys, "argv", argv + ["-r", "0"]):
+            move.copy()
+            for output in outpust2:
+                self.assertTrue(output.is_file())
+
+    def test_copy_dir2(self):
+        """copy"""
+        # ファイルコピー
+
+        input_dir = self.assets_dir / "input"
+        out_dir = self.assets_dir / "out"
+
+        inputs = [
+            input_dir / "i1.txt",
+            input_dir / "i2.txt",
+            input_dir / "sub" / "i3.txt",
+        ]
+        outpust = [
+            out_dir / "input_i1.txt",
+            out_dir / "input_i2.txt",
+            out_dir / "input_sub_i3.txt",
+        ]
+
+        for input in inputs:
+            os.makedirs(input.parent, exist_ok=True)
+            input.touch(exist_ok=True)
+
+        argv = (
+            ["_", "copy"]
+            + ["-i", str(input_dir.resolve())]
+            + ["-o", str(out_dir.resolve())]
+            + ["--addDirName"]
+            + ["-r", "2"]
+        )
+        with patch.object(sys, "argv", argv):
+            move.copy()
+            for output in outpust:
+                self.assertTrue(output.is_file())

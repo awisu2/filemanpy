@@ -1,4 +1,4 @@
-from typing import Union, Tuple
+from typing import Union, Tuple, List
 
 from pathlib import Path
 import shutil
@@ -7,8 +7,25 @@ strPath = Union[str, Path]
 returnStrPath = Union[str, Path, None]
 
 
+def join_dirs(path: Path, *, joint: str = "_"):
+    dirs: List[str] = []
+    while True:
+        dirs = [path.name] + dirs
+        path = path.parent
+        if path == Path("."):
+            break
+
+    return joint.join(dirs)
+
+
 def __ready_move(
-    src: strPath, dist: strPath, *, addDirName=False, withDir=False, outIsDir=False
+    src: strPath,
+    dist: strPath,
+    *,
+    addDirName=False,
+    withDir=False,
+    outIsDir=False,
+    base_path: strPath = None,
 ) -> Tuple[bool, returnStrPath, returnStrPath]:
     """ファイルの移動準備
 
@@ -21,6 +38,7 @@ def __ready_move(
         addDirName (bool, optional): 移動先のファイルにディレクトリ名を付与. Defaults to False.
         withDir (bool, optional): 元のディレクトリと同じ名前のディレクトリを作成. Defaults to False.
         outDir (bool, optional): 出力先をディレクトリとして扱う. Defaults to False.
+        base_path 深い階層のファイルをコピーする際に基準とするpath
 
     Returns:
         [type]: [description]
@@ -32,16 +50,26 @@ def __ready_move(
         print(f"{_src.resolve()} is not file")
         return False, None, None
 
+    if not base_path:
+        # 格納ディレクトリを含めるため、ファイルの親の親をベースにする
+        base_path = _src.parent.parent
+
+    rel_path = _src.parent.relative_to(base_path)
+
     # srcのディレクトリを付与(強制的にdistをディレクトリ扱いにする)
     if withDir:
-        _dist = _dist / _src.parent.name / _src.name
+        _dist = _dist / rel_path / _src.name
 
-    elif outIsDir or _dist.is_dir():
+    elif outIsDir or addDirName or _dist.is_dir():
         _dist = _dist / _src.name
 
     # ファイル名にsrcのディレクトリ名を付与
     if addDirName:
-        _dist = _dist.parent / (_src.parent.name + "_" + _dist.name)
+        # 複数階層の場合は接続文字を取得
+        dir_str = join_dirs(rel_path)
+        if dir_str:
+            dir_str += "_"
+        _dist = _dist.parent / (dir_str + _dist.name)
 
     # コピー先のディレクトリを作成
     if not _dist.parent.is_dir():
